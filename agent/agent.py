@@ -6,7 +6,7 @@ from langchain.vectorstores.base import VectorStore
 from nanoid import generate
 
 # from utils.event_helper import EventEmitter
-from agents.agent_base import AgentBaseCommand
+from agent.agent_base import AgentBaseCommand
 from interface.agent_interface import (IAgent, IAgentConfig, IDatabaseConfig,
                                        IInputProps, IVectorStoreConfig)
 # from helpers.string_helpers import interpolate
