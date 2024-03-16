@@ -4,16 +4,19 @@ from typing import List
 
 # from .sql_chain import SqlChain
 from langchain.chains.base import Chain
-from langchain.chains.sequential import SequentialChain, SimpleSequentialChain
+from langchain.chains.llm import LLMChain
+from langchain.chains.sequential import SequentialChain
 from langchain.chat_models.base import BaseChatModel
 from langchain.memory import ConversationBufferMemory
 from langchain.prompts import (BasePromptTemplate, ChatPromptTemplate,
                                HumanMessagePromptTemplate, MessagesPlaceholder,
                                SystemMessagePromptTemplate)
+from langchain_core.prompts import ChatPromptTemplate, PromptTemplate
 
 from interface.agent_interface import SYSTEM_MESSAGE_DEFAULT, IAgentConfig
 from interface.chain_interface import IChain
 from interface.chain_service_interface import IChainService
+from services.chains.openapi_chain import OpenAPIChain
 
 from .openapi_chain import OpenAPIChain
 
@@ -90,22 +93,29 @@ class ChainService:
 
         return CHAT_COMBINE_PROMPT
 
-    def buildChains(self, llm: BaseChatModel, memory: ConversationBufferMemory, *args) -> List[Chain]:
+    def buildChains(self, llm: BaseChatModel, *args) -> List[Chain]:
         enabledChains = self.checkEnabledChains(self._settings)
         # chainQA = loadQAMapReduceChain(llm, combinePrompt=self.buildPromptTemplate(self._settings.get('system_messsage', SYSTEM_MESSAGE_DEFAULT)))
 
         # chains = await asyncio.gather(*(chain.create(llm, *args) for chain in enabledChains))
         chains = []
         for chain in enabledChains:
-            cn = chain.create(llm, memory, *args)
+            cn = chain.create(llm, *args)
             chains.append(cn)
 
         # return chains + [chainQA]
         return chains
 
-    def build(self, llm: BaseChatModel, chat_history: ConversationBufferMemory, *args) -> Chain:
-        memory = chat_history
-        chains = self.buildChains(llm, memory, *args)
+    def build(self, llm: BaseChatModel, *args) -> Chain:
+        memory = args[0]
+        chains = self.buildChains(llm, *args)
+        # prompt_template = "Tell me a {question} joke"
+        # prompt = PromptTemplate(
+        #     input_variables=["question"], template=prompt_template
+        # )
+        # llm = LLMChain(llm=llm, prompt=prompt)
+        # chains = [llm]
+        print("🐍 File: chains/chain.py | Line: 109 | build ~ chains",chains)
 
         enhancementChain = SequentialChain(
             chains=chains,
@@ -118,8 +128,9 @@ class ChainService:
                 'format_chat_messages',
                 # 'user_prompt',
             ],
-            output_variables=['output'],
-            memory=memory
+            return_all=True,
+            # output_variables=['llm'],
+            # memory=memory
         )
 
         return enhancementChain

@@ -6,7 +6,7 @@ from langchain.vectorstores.base import VectorStore
 from nanoid import generate
 
 # from utils.event_helper import EventEmitter
-from agents.agent_base import AgentBaseCommand
+from agent.agent_base import AgentBaseCommand
 from interface.agent_interface import (IAgent, IAgentConfig, IDatabaseConfig,
                                        IInputProps, IVectorStoreConfig)
 # from helpers.string_helpers import interpolate
@@ -73,21 +73,22 @@ class Agent(IAgent):
         try:
             chat_history = self.buildHistory(chatThreadID, self._settings.get('db_history_config'))
             # relevantDocs = await self.buildRelevantDocs(args, self._settings.get('vectorStoreConfig', {}))
-
-            chain = self._chainService.build(self._llm, chat_history.getBufferMemory(), question)
-            print("🐍 File: agents/agent.py | Line: 81 | call ~ chain",chain)
+            memory = chat_history.getBufferMemory()
+            chain = self._chainService.build(self._llm, memory, question)
 
             chatMessages = chat_history.getMessages()
 
-            result = chain.run({
-                # 'referencies': relevantDocs['referenciesDocs'],
-                # 'input_documents': relevantDocs['relevantDocs'],
-                'query': question,
-                'question': question,
-                'chat_history': chatMessages,
-                'format_chat_messages': chat_history.getFormatedMessages(chatMessages),
-                # 'user_prompt': self._settings.get('systemMesssage', ''),
-            })
+            result = chain.invoke(
+                input={
+                    # 'referencies': relevantDocs['referenciesDocs'],
+                    # # 'input_documents': relevantDocs['relevantDocs'],
+                    'question': question,
+                    'query': question,
+                    'chat_history': chatMessages,
+                    'format_chat_messages': chat_history.getFormatedMessages(chatMessages),
+                    # 'user_prompt': self._settings.get('systemMesssage', ''),
+                }
+            )
             return result
 
             # await chatHistory.addUserMessage(question)

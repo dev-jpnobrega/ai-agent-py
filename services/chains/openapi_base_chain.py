@@ -1,15 +1,19 @@
-# from langchain.chains import BaseChain, ChainValues
-# from interface.agent_interface import IChainInputs
-from typing import Dict, Union
+import json
+from typing import Any, Dict, List, Optional, Union
 
-from langchain.chains.api.openapi.chain import OpenAPIEndpointChain
+import langchain.memory
+from langchain.callbacks.manager import (AsyncCallbackManagerForChainRun,
+                                         CallbackManagerForChainRun)
+from langchain.chains.base import Chain
+from langchain.chains.llm import LLMChain
 from langchain.chat_models.base import BaseChatModel
-from langchain.prompts import (BasePromptTemplate, ChatPromptTemplate,
-                               HumanMessagePromptTemplate, MessagesPlaceholder,
-                               SystemMessagePromptTemplate)
-from langchain.schema.runnable import RunnableSequence
-from langchain_core.output_parsers import StrOutputParser
+from langchain.memory import ConversationBufferMemory
+from langchain_core.prompts import (BasePromptTemplate, ChatPromptTemplate,
+                                    HumanMessagePromptTemplate,
+                                    MessagesPlaceholder, PromptTemplate,
+                                    SystemMessagePromptTemplate)
 from openapi3 import OpenAPI
+from pydantic import Extra
 
 from utils.fetch_helper import fetch
 
@@ -19,21 +23,49 @@ class OpenApiBaseChainInput():
     llm: BaseChatModel
     customizeSystemMessage: str
     headers: Dict[str, str]
+    memory: ConversationBufferMemory
 
-class OpenApiBaseChain():
-    input_keys = 'query'
-    output_keys = 'openAPIResult'
+class OpenApiBaseChain(Chain):
+    # input: Dict[str, Any]
+    # output_keys = 'openAPIResult'
+    # memory = None
 
-    def __init__(self, input) -> None:
-        self.input: OpenApiBaseChainInput = input
+    # @property
+    # def input(self):
+    #     return self.input
+
+    # class Config:
+    #     """Configuration for this pydantic object."""
+
+    #     extra = Extra.forbid
+    #     arbitrary_types_allowed = True
 
     @property
-    def input_keys(self):
-        return [self.input_keys]
+    def input_keys(self) -> List[str]:
+        """Expect input key.
+
+        :meta private:
+        """
+        return [self.question_key]
 
     @property
-    def output_keys(self):
-        return [self.output_keys]
+    def output_keys(self) -> List[str]:
+        """Expect output key.
+
+        :meta private:
+        """
+        return [self.output_key]
+
+    def __fields_set__(self):
+        pass
+
+    def __init__(self) -> None:
+        super().__init__()
+        # self.input_keys = ['query', 'question', 'chat_history', 'format_chat_messages']
+        # self.output_keys = ['openAPIResult']
+        # self.memory = None
+        # self.input = input
+        # print("🐍 File: chains/openapi_base_chain.py | Line: 43 | __init__ ~ input",input)
 
     def getOpenApiPrompt(self):
         return """
@@ -42,7 +74,7 @@ class OpenApiBaseChain():
         - Only execute the request on the service if the question is not in CHAT HISTORY, if the question has already been answered, use the same answer and do not make a request on the service.
         - Only attempt to answer if a question was posed.\n
         - Always answer the question in the language in which the question was asked.\n
-        - The response must be a json object contains an url, contentType, requestMethod and data.\n\n
+        - The response must be a json object contains an url, content_type, method and data.\n\n
         -------------------------------------------\n
         SCHEMA: {schema}\n
         -------------------------------------------\n
@@ -55,34 +87,43 @@ class OpenApiBaseChain():
 
     def buildPromptTemplate(self, system_messages: str) -> BasePromptTemplate:
         combine_messages = [
-            SystemMessagePromptTemplate(system_messages),
+            SystemMessagePromptTemplate.from_template(system_messages),
             MessagesPlaceholder('chat_history'),
-            HumanMessagePromptTemplate('{question}'),
+            HumanMessagePromptTemplate.from_template('{question}'),
         ]
 
-        return ChatPromptTemplate(combine_messages)
+        return ChatPromptTemplate.format_messages(combine_messages)
 
-    def _call(self, values):
-        print("🐍 File: chains/openapi_base_chain.py | Line: 66 | buildPromptTemplate ~ values",values)
-        question = values[self.input_keys]
-        schema = self.input.spec
+    def _call(self, inputs: Dict[str, Any], run_manager: Optional[CallbackManagerForChainRun] = None):
+        prompt = PromptTemplate(input_variables=["schema", "question", "format_chat_messages"], template=self.getOpenApiPrompt())
+        chain = LLMChain(llm=inputs.get('llm'), prompt=prompt, output_key='request')
+        result = chain.invoke(
+            input={
+                "schema": inputs.get('spec'),
+                "question": inputs.get('question'),
+                "format_chat_messages": inputs.get("format_chat_messages"),
+            }
+        )
+        request = json.loads(result.get("request"))
+        headers = self.input.get('headers') if self.input.get('headers') else {}
+        custom_headers = {
+            **headers,
+            'Content-Type': request.get('content_type'),
+        }
+        response = fetch(
+            url=request.get('url'),
+            method=request.get('method'),
+            data=request.get('data'),
+            headers=custom_headers,
+        )
+        return { 'openAPIResult': response }
 
-        fetch_sentence = {
-            "schema": lambda: schema,
-            "question": lambda input: input["question"],
-            "chat_history": lambda: values.get("chat_history"),
-            "format_chat_messages": lambda: values.get("format_chat_messages"),
-            # "user_prompt": lambda: self.input.customizeSystemMessage
-            } | self.buildPromptTemplate(self.getOpenApiPrompt()) | self.input.llm.bind({})
-
-        final_chain = {
-            "question": lambda input: input["question"], "query": fetch_sentence
-            } | {
-            "table_info": lambda: schema, "input": lambda: question, "schema": lambda: schema, "question": lambda input: input["question"], "query": lambda input: input["query"], "response": lambda input: fetch(input["query"]["content"], self.input.headers)
-            } | { self.output_keys: lambda input: input["response"]["body"] } | StrOutputParser()
-
-        result = final_chain.invoke({"question": question})
-        return result
-
-    def _chainType(self) -> str:
+    # async def _acall(
+    #         self,
+    #         inputs: Dict[str, Any],
+    #         run_manager: Optional[AsyncCallbackManagerForChainRun] = None,
+    # ) -> Dict[str, str]:
+    #     raise NotImplementedError("Does not support async")
+    @property
+    def _chain_type(self) -> str:
         return 'open_api_chain'

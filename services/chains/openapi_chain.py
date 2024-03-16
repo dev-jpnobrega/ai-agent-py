@@ -1,5 +1,4 @@
 # from langchain.chains import BaseChain
-import langchain.memory
 from langchain.chat_models.base import BaseChatModel
 from langchain.memory import ConversationBufferMemory
 
@@ -21,7 +20,7 @@ class OpenAPIChain(IChain):
             headers["Authorization"] = self._settings["authorization"]
         return headers or None
 
-    def create(self, llm: BaseChatModel, memory: ConversationBufferMemory, *args):
+    def create(self, llm: BaseChatModel, *args):
         headers = self.getHeaders()
         open_api_chain = OpenApiBaseChain(
             input={
