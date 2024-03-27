@@ -1,68 +1,7 @@
 import json
 from typing import Any, Dict, Optional
 
-import aiohttp
-import httpx as http
 import requests
-
-
-class IConfigureTimeoutResponse:
-    def __init__(self, signal, timeout_id):
-        self.signal = signal
-        self.timeout_id = timeout_id
-
-
-# def configure_timeout(timeout: int) -> IConfigureTimeoutResponse:
-#     timeout_id = None
-#     signal = None
-#     if timeout:
-#         signal = None  # To be replaced with actual AbortController in Python
-#         # Convert milliseconds to seconds
-#         timeout_id = signal.timeout(timeout / 1000)
-#     return IConfigureTimeoutResponse(signal, timeout_id)
-
-
-# def try_parse_json(value: Any) -> Any:
-#     try:
-#         return json.loads(value)
-#     except ValueError:
-#         return value
-
-
-# class IResponseHeaders(Dict[str, str]):
-#     pass
-
-
-# class IResponse:
-#     body = str
-#     response = object
-
-
-# async def format_response(response) -> IResponse:
-#     body = try_parse_json(await response.text())
-#     response_headers = IResponseHeaders(response.headers)
-
-#     formatted_response = {
-#         "body": body,
-#         "response": {
-#             "body": body,
-#             "headers": response_headers,
-#             "ok": response.ok,
-#             "statusCode": response.status,
-#             "statusText": response.reason,
-#         },
-#     }
-
-#     return formatted_response if response.ok else {"body": "Request Error"}
-
-
-# async def fetch_openapi(data: Dict[str, Any], timeout: int, headers: Dict[str, str] = None) -> IResponse:
-#     timeout_response = configure_timeout(timeout)
-
-#     async with aiohttp.ClientSession() as session:
-#         async with session.post(data.get("url"), method=data.get("requestMethod"), headers=headers, data=json.dumps(data.get("data")), signal=timeout_response.signal) as response:
-#             clearTimeout(timeout_response.timeout_id)
-#             return await format_response(response)
 
 
 def fetch(url: str, method: str, data: Dict[str, Any] = None, headers: Dict[str, str] = None) -> Optional[Dict[str, Any]]:

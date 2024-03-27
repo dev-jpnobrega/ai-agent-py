@@ -1,57 +1,55 @@
-from typing import List
+from typing import List, Sequence
 
-from langchain.memory import ConversationBufferMemory
-from langchain.schema import BaseChatMessageHistory, BaseMessage
-from langchain.storage.in_memory import InMemoryBaseStore
+from langchain.memory import ConversationBufferWindowMemory
+from langchain.memory.chat_memory import ChatMessageHistory
+from langchain.schema import BaseChatMessageHistory
+from langchain_core.messages import AIMessage, BaseMessage
 
-from interface.agent_interface import IDatabaseConfig
-from interface.chat_history_interface import IChatHistory
+from interface.chat_history import IChatHistoryService
 
 
-class MemoryChatHistory(IChatHistory):
-    def __init__(self, settings: IDatabaseConfig):
-        self._settings = settings
-        self._history = BaseChatMessageHistory
-        self._bufferMemory = ConversationBufferMemory
+class MemoryChatHistory(BaseChatMessageHistory, IChatHistoryService):
 
-    def addUserMessage(self, message: str) -> None:
-        if self._history:
-            self._history.addUserMessage(message)
-
-    def addAIChatMessage(self, message: str) -> None:
-        if self._history:
-            self._history.addAIChatMessage(message)
-
-    def getMessages(self) -> List[BaseMessage]:
-        messages = self._history.getMessages() if self._history else []
-        cut = messages[-(self._settings.get('limit', 5)):]
-
-        return cut
-
-    def getFormatedMessages(self, messages: List[BaseMessage]) -> str:
-        formated = '\n'.join(
-            f"{message._getType().upper()}: {message.content}" for message in messages
-        )
-
-        return formated
-
-    def getChatHistory(self) -> BaseChatMessageHistory:
-        return self._history
-
-    def getBufferMemory(self) -> ConversationBufferMemory:
-        return self._bufferMemory
-
-    def clear(self) -> None:
-        if self._history:
-            self._history.clear()
-
-    def build(self) -> IChatHistory:
-        self._history = InMemoryBaseStore()
-
-        self._bufferMemory = ConversationBufferMemory(
+    def __init__(self, limit: int = 5):
+        super().__init__()
+        self.limit = limit
+        self.chat_memory = ChatMessageHistory()
+        self.memory = ConversationBufferWindowMemory(
             return_messages=True,
-            memory_key='chat_history',
-            chat_memory=self._history
+            memory_key='history',
+            chat_memory=self.chat_memory,
+            k=self.limit
         )
 
-        return self
+    def get_memory(self):
+        return self.memory
+
+    def add_user_message(self, message: str):
+        self.memory.chat_memory.add_user_message(message=message)
+
+    def add_ai_message(self, message: str):
+        if isinstance(message, AIMessage):
+            self.add_message(message)
+        else:
+            self.add_message(AIMessage(content=message))
+
+    def add_message(self, message: BaseMessage) -> None:
+        if type(self).add_messages != BaseChatMessageHistory.add_messages:
+            self.add_messages([message])
+        else:
+            raise NotImplementedError(
+                "add_message is not implemented for this class. "
+                "Please implement add_message or add_messages."
+            )
+
+    def add_messages(self, messages: Sequence[BaseMessage]) -> None:
+        for message in messages:
+            self.memory.chat_memory.add_message(message)
+
+    def get_messages(self):
+        return self.memory.load_memory_variables
+
+    def clear(self):
+        self.memory.clear()
+
+
