@@ -3,7 +3,7 @@ from setuptools import setup
 with open("README.md", "r") as arq:
     readme = arq.read()
 
-setup(name='ai-agent',
+setup(name='ai_enterprise_agent',
     version='0.0.2',
     license='Apache 2.0 License',
     author='Author',
