@@ -1,54 +1,47 @@
-from typing import Any, Iterable, List, Optional, Tuple, Type
+from typing import Any, Dict
 
-from langchain_core.documents import Document
-from langchain_core.embeddings import Embeddings
+from langchain.chains.base import Chain
+from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.vectorstores import VectorStore
 
-from interface.settings import ISettings
-from interface.vector_search import ISearchType
+from interface.chat_history import IChatHistoryService
+from interface.settings import PROCESSING_TYPE, ISettings
 from services.vector_store.vector_store import VectorStoreFactory
 
 
-class VectorStoreChain(VectorStore):
+class VectorStoreChain(Chain):
 
-  def __init__(self, config: ISettings):
-    self._vector_store = VectorStoreFactory.build(config.get('vector_store'))
+  input_key = 'question'
+  output_key = 'vector_store_chain'
+  memory: IChatHistoryService = None
+  model: BaseChatModel = None
+  config: ISettings = None
+  vector_store: VectorStore = None
 
-  def similarity_search(self, query: str, k: int = 4, search_type: ISearchType = ISearchType.similarity) -> List[Document]:
-    docs = self._vector_store.similarity_search(
-      query=query,
-      k=k,
-      search_type=search_type
-    )
-    return docs
+  @property
+  def input_keys(self):
+    return [self.input_key]
 
-  def similarity_search_with_relevance_scores(self, query: str,  score_threshold: float, k: Optional[int]) -> List[Tuple[Document, float]]:
-    docs_and_scores = self._vector_store.similarity_search_with_relevance_scores(
-      query=query,
-      k=k,
-      score_threshold=score_threshold,
-    )
-    return docs_and_scores
+  @property
+  def output_keys(self):
+    return [self.output_key]
 
-  def search(self, query: str, search_type: str, **kwargs: Any) -> List[Document]:
-    return self._vector_store.search(query, search_type, **kwargs)
+  def __init__(self, config: ISettings, model: BaseChatModel, memory: IChatHistoryService):
+    super().__init__()
+    self.model = model
+    self.memory = memory
+    self.config = config
+    self.vector_store = VectorStoreFactory.build(config=config, model=self.model)
 
-  def add_documents(self, documents: List[Document]):
-    self._vector_store.add_documents(documents=documents)
+  def build_relevant_docs(self, question: str, k: int = 10):
+    return self.vector_store.similarity_search(query=question, k=k)
 
-  def add_texts(
-        self,
-        texts: Iterable[str],
-        metadatas: Optional[List[dict]] = None,
-        **kwargs: Any,
-    ) -> List[str]:
+  def chain(self):
     pass
 
-  def from_texts(
-        cls: Type[Any],
-        texts: List[str],
-        embedding: Embeddings,
-        metadatas: Optional[List[dict]] = None,
-        **kwargs: Any,
-    ):
-    pass
+  async def _call(self, input: Dict[str, Any]):
+    question = input.get('question')
+    response = self.vector_store._call(question, False)
+    if self.config.get('processing_type') == PROCESSING_TYPE.sequential:
+      return { self.output_key: response.get('result') }
+    return response.get('result')

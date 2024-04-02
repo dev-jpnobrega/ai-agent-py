@@ -6,6 +6,7 @@ from interface.settings import CHAIN_TYPE, ISettings
 from services.chains.open_api_chain import OpenApiChain
 from services.chains.simple_chain import SimpleChain
 from services.chains.sql_chain import SqlChain
+from services.chains.vector_store_chain import VectorStoreChain
 
 
 class ChainFactory:
@@ -14,7 +15,7 @@ class ChainFactory:
     """
 
     @staticmethod
-    def build(chain_type: str, config: ISettings, model: BaseChatModel, memory: ConversationBufferMemory) -> Chain:
+    def build(chain_type: str, config: ISettings, model: BaseChatModel, memory: ConversationBufferMemory = None) -> Chain:
         """
         Build a chain based on the provided chain type.
 
@@ -33,7 +34,8 @@ class ChainFactory:
         chain_classes = {
             CHAIN_TYPE.open_api_chain: OpenApiChain,
             CHAIN_TYPE.simple_chain: SimpleChain,
-            CHAIN_TYPE.sql_chain: SqlChain
+            CHAIN_TYPE.sql_chain: SqlChain,
+            CHAIN_TYPE.vector_store_chain: VectorStoreChain
         }
 
         chain_class = chain_classes.get(chain_type)

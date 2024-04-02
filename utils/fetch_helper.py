@@ -25,7 +25,7 @@ def fetch(url: str, method: str, data: Dict[str, Any] = None, headers: Dict[str,
         else:
             raise ValueError("Método HTTP inválido. Use 'GET' ou 'POST'.")
 
-        response.raise_for_status()  # Lança uma exceção para erros HTTP
+        response.raise_for_status()
         return response.json()
     except requests.exceptions.RequestException as e:
         print(f"Erro ao fazer a solicitação para {url}: {e}")

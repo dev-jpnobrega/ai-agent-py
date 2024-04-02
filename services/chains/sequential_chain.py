@@ -7,7 +7,7 @@ from langchain.chains.base import Chain
 from interface.settings import ISettings
 
 
-class SequentialChain(Chain):
+class CustomSequentialChain(Chain):
 
   input_key = 'question'
   output_key = 'sequential_chain'

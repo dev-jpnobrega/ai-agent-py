@@ -71,7 +71,7 @@ class SqlChain(Chain):
     template = """Based on the table schema below, write only a SQL query that would answer the user's question.
     Remember to put double quotes around database table names. Remove triple quotes and sql word of the sentences.
     If you don't find out what the table schema is, only response friendly can't be written a valid SQL query.
-    {schema}
+    Schema: {schema}
     History: {history}
     Question: {question}
     SQL Query:"""
@@ -106,7 +106,7 @@ class SqlChain(Chain):
     template = """If you don't get a valid query to execute, only reply in a friendly manner that you didn't find the answer.\n
     Only execute the request on the service if the question is not in History, if the question has already been answered, use the same answer and do not make a query on the database.\n
     Based on the table schema below, question, sql query, and sql response, write a natural language response:\n\n
-    {schema}
+    Schema: {schema}
     History: {history}
     Question: {question}
     SQL Query: {query}

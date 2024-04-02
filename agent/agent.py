@@ -1,22 +1,17 @@
 from typing import Any, Dict, List
 
-from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import PromptTemplate
 
 from interface.settings import CHAIN_TYPE, PROCESSING_TYPE, ISettings
 from services.chains.chain import ChainFactory
 from services.chains.orchestrator_chain import OrchestratorChain
-from services.chains.sequential_chain import SequentialChain
-from services.chains.vector_store_chain import VectorStoreChain
+from services.chains.sequential_chain import CustomSequentialChain
 from services.chat_history.memory import MemoryFactory
 from services.llm.model import ModelFactory
 
 
 class Agent:
-
-  config: ISettings = {}
-  model: BaseChatModel = None
 
   def __init__(self, config: ISettings) -> None:
     self.config = config
@@ -42,16 +37,10 @@ class Agent:
     enabled_chains = [{'name': chain, 'chain': ChainFactory.build(chain, self.config, model=self.model, memory=self.memory)} for chain in chains]
 
     if self.config.get('processing_type') == PROCESSING_TYPE.sequential:
-      return SequentialChain(config=self.config, chains=enabled_chains)
+      return CustomSequentialChain(config=self.config, chains=enabled_chains)
 
     if self.config.get('processing_type') == PROCESSING_TYPE.orchestrated:
       return OrchestratorChain(config=self.config, model=self.model, chains=enabled_chains)
-
-  def build_relevant_docs(self, question: str, k: int = 10):
-    config = self.config
-    vector_store = VectorStoreChain(config)
-    relevant_docs = vector_store.similarity_search(query=question, k=k)
-    return relevant_docs
 
   def build_system_messages(self):
     config = self.config
@@ -82,6 +71,12 @@ class Agent:
       message += """
         OPEN API Result: {open_api_chain}\n
       """
+
+    if CHAIN_TYPE.vector_store_chain in config.get('chains'):
+      message += """
+        Document Result: {vector_store_chain}\n
+      """
+
     return message
 
   def refine_result(self, input: Dict[str, Any], result: Any | List):
@@ -92,6 +87,7 @@ class Agent:
       "simple_chain": result.get('simple_chain', None),
       "sql_chain": result.get('sql_chain', None),
       "open_api_chain": result.get('open_api_chain', None),
+      "vector_store_chain": result.get('vector_store_chain', None),
     })
     return response
 

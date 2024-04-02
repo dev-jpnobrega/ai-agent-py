@@ -79,6 +79,12 @@ class IVectorSearch:
     region: Optional[str]
     service: Optional[str]
     custom_filters: Optional[str]
+    instance: Optional[str]
+    fields_content: Optional[str]
+    fields_content_vector: Optional[str]
+    vector_search_profile_name: Optional[str]
+    region: Optional[str]
+    cloud: Optional[str]
 
 class IChatHistory:
     type: DATABASE_TYPE
