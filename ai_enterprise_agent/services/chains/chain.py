@@ -2,11 +2,12 @@ from langchain.chains.base import Chain
 from langchain.memory import ConversationBufferMemory
 from langchain_core.language_models.chat_models import BaseChatModel
 
-from interface.settings import CHAIN_TYPE, ISettings
-from services.chains.open_api_chain import OpenApiChain
-from services.chains.simple_chain import SimpleChain
-from services.chains.sql_chain import SqlChain
-from services.chains.vector_store_chain import VectorStoreChain
+from ai_enterprise_agent.interface.settings import CHAIN_TYPE, ISettings
+from ai_enterprise_agent.services.chains.open_api_chain import OpenApiChain
+from ai_enterprise_agent.services.chains.simple_chain import SimpleChain
+from ai_enterprise_agent.services.chains.sql_chain import SqlChain
+from ai_enterprise_agent.services.chains.vector_store_chain import \
+    VectorStoreChain
 
 
 class ChainFactory:

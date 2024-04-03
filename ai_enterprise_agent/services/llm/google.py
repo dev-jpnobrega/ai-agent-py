@@ -1,7 +1,7 @@
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_google_genai import ChatGoogleGenerativeAI
 
-from interface.settings import IModel
+from ai_enterprise_agent.interface.settings import IModel
 
 
 class GoogleChatModel:

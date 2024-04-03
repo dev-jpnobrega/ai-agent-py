@@ -3,16 +3,18 @@ from setuptools import setup
 with open("README.md", "r") as arq:
     readme = arq.read()
 
-setup(name='ai-agent',
-    version='0.0.2',
+setup(name='ai-enterprise-agent',
+    version='0.0.3',
     license='Apache 2.0 License',
     author='Author',
     long_description=readme,
     long_description_content_type="text/markdown",
     author_email='autor@autor.com.br',
     keywords='ai ai-agent agent assistant enterprise',
-    description=u'AI Agent simplifies the implementation and use of generative AI with LangChain.',
-    packages=['agent'],
+    description='AI Agent simplifies the implementation and use of generative AI with LangChain.',
+    packages=['ai_enterprise_agent', 'ai_enterprise_agent.interface', 'ai_enterprise_agent.services','ai_enterprise_agent.services.chains', 'ai_enterprise_agent.services.chat_history', 'ai_enterprise_agent.services.llm', 'ai_enterprise_agent.services.vector_store', 'ai_enterprise_agent.utils'],
+    python_requires='>=3.9',
+    package_dir={'': '.', 'ai_enterprise_agent': './ai_enterprise_agent', 'ai_enterprise_agent.interface': './ai_enterprise_agent/interface', 'ai_enterprise_agent.services': './ai_enterprise_agent/services', 'ai_enterprise_agent.services.chains': './ai_enterprise_agent/services/chains', 'ai_enterprise_agent.services.chat_history': './ai_enterprise_agent/services/chat_history', 'ai_enterprise_agent.services.llm': './ai_enterprise_agent/services/llm', 'ai_enterprise_agent.services.vector_store': './ai_enterprise_agent/services/vector_store', 'ai_enterprise_agent.utils': './ai_enterprise_agent/utils'},
     install_requires=[
       'aiohttp==3.9.3',
       'aiosignal==1.3.1',

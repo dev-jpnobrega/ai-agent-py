@@ -11,8 +11,9 @@ from langchain_core.runnables import RunnableLambda, RunnablePassthrough
 from langchain_core.runnables.base import RunnableSerializable
 from sqlalchemy import URL
 
-from interface.chat_history import IChatHistoryService
-from interface.settings import DIALECT_TYPE, PROCESSING_TYPE, ISettings
+from ai_enterprise_agent.interface.chat_history import IChatHistoryService
+from ai_enterprise_agent.interface.settings import (DIALECT_TYPE,
+                                                    PROCESSING_TYPE, ISettings)
 
 
 class SqlChain(Chain):
@@ -102,10 +103,11 @@ class SqlChain(Chain):
       return sqlBlock
     return None
 
-  def chain(self) -> RunnableSerializable[Any, Any]:
+  def chain(self, custom_system_message) -> RunnableSerializable[Any, Any]:
     template = """If you don't get a valid query to execute, only reply in a friendly manner that you didn't find the answer.\n
     Only execute the request on the service if the question is not in History, if the question has already been answered, use the same answer and do not make a query on the database.\n
     Based on the table schema below, question, sql query, and sql response, write a natural language response:\n\n
+    {custom_system_message}
     Schema: {schema}
     History: {history}
     Question: {question}
@@ -115,6 +117,7 @@ class SqlChain(Chain):
     try:
       chain = (
         RunnablePassthrough.assign(history=RunnableLambda(self.memory.get_messages()) | itemgetter("history"))
+          .assign(custom_system_message=lambda _: custom_system_message)
           .assign(schema=self.get_schema)
           .assign(query=self.create_sql)
           .assign(response=lambda x: self.db.run(self.parserSQL(x["query"])) if self.parserSQL(x["query"]) != None else x["query"])
@@ -125,9 +128,11 @@ class SqlChain(Chain):
       print(f"Error: {e}")
 
   async def _call(self, input: Dict[str, Any] = None):
-    chain = self.chain()
+    question = input.get('question')
+    custom_system_message = input.get('custom_system_message', None)
+    chain = self.chain(custom_system_message)
     response = chain.invoke(input)
-    self.memory.add_user_message(message=input.get('question'))
+    self.memory.add_user_message(message=question)
     self.memory.add_ai_message(message=response)
     if self.config.get('processing_type') == PROCESSING_TYPE.sequential:
       return { self.output_key: response }

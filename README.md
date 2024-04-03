@@ -3,7 +3,7 @@
 
 # AI Agent
 
-AI Agent simplifies the implementation and use of generative AI with LangChain, was inspired by the project [autogent](https://github.com/microsoft/autogen)
+AI Agent simplifies the implementation and use of generative AI with LangChain, was inspired by the project [autogen](https://github.com/microsoft/autogen)
 
 
 
@@ -12,7 +12,7 @@ AI Agent simplifies the implementation and use of generative AI with LangChain, 
 Use the package manager [pip](https://pypi.org/project/pip/) to install AI Agent.
 
 ```bash
-pip install -r requirements.txt
+pip install ai_enterprise_agent
 ```
 
 ## Usage
@@ -21,8 +21,8 @@ pip install -r requirements.txt
 ```python
   import asyncio
 
-  from agent.agent import Agent
-  from interface.settings import (CHAIN_TYPE, DATABASE_TYPE, DIALECT_TYPE,
+  from ai_enterprise_agent.agent import Agent
+  from ai_enterprise_agent.interface.settings import (CHAIN_TYPE, DATABASE_TYPE, DIALECT_TYPE,
                                   LLM_TYPE, PROCESSING_TYPE, VECTOR_STORE_TYPE)
   agent = Agent({
     'processing_type': PROCESSING_TYPE.single,
@@ -105,7 +105,34 @@ See the [contributing docs](CONTRIBUTING.md) for more information
 
 <table>
   <tr>
-    <td align="center"><a href="https://github.com/dev-jpnobrega"><img src="https://avatars1.githubusercontent.com/u/28389807?s=400&u=2c152fc946efc96badce0cfc743ebcb2585b4b3f&v=4" width="100px;" alt=""/><br /><sub><b>JP. Nobrega</b></sub></a><br /><a href="https://github.com/dev-jpnobrega/api-rest/issues" title="Answering Questions">💬</a> <a href="https://github.com/dev-jpnobrega/api-rest/master#how-do-i-use" title="Documentation">📖</a> <a href="https://github.com/dev-jpnobrega/api-rest/pulls" title="Reviewed Pull Requests">👀</a> <a href="#talk-kentcdodds" title="Talks">📢</a></td>
+    <td align="center">
+      <a href="https://github.com/dev-jpnobrega">
+        <img src="https://avatars1.githubusercontent.com/u/28389807?s=400&u=2c152fc946efc96badce0cfc743ebcb2585b4b3f&v=4" width="100px;" alt=""/>
+        <br />
+        <sub>
+          <b>JP. Nobrega</b>
+        </sub>
+      </a>
+      <br />
+      <a href="https://github.com/dev-jpnobrega/ai-agent-py/issues" title="Answering Questions">💬</a>
+      <a href="https://github.com/dev-jpnobrega/ai-agent-py/master#how-do-i-use" title="Documentation">📖</a>
+      <a href="https://github.com/dev-jpnobrega/ai-agent-py/pulls" title="Reviewed Pull Requests">👀</a>
+      <a href="#talk-kentcdodds" title="Talks">📢</a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/tuliogaio">
+        <img src="https://github.com/tuliogaio.png" width="100px;" alt=""/>
+        <br />
+        <sub>
+          <b>Túlio César Gaio</b>
+        </sub>
+      </a>
+      <br />
+      <a href="https://github.com/dev-jpnobrega/ai-agent-py/issues" title="Answering Questions">💬</a>
+      <a href="https://github.com/dev-jpnobrega/ai-agent-py/master#how-do-i-use" title="Documentation">📖</a>
+      <a href="https://github.com/dev-jpnobrega/ai-agent-py/pulls" title="Reviewed Pull Requests">👀</a>
+      <a href="#talk-kentcdodds" title="Talks">📢</a>
+    </td>
   </tr>
 </table>
 

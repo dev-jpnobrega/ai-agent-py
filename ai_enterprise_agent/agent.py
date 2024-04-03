@@ -3,12 +3,15 @@ from typing import Any, Dict, List
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import PromptTemplate
 
-from interface.settings import CHAIN_TYPE, PROCESSING_TYPE, ISettings
-from services.chains.chain import ChainFactory
-from services.chains.orchestrator_chain import OrchestratorChain
-from services.chains.sequential_chain import CustomSequentialChain
-from services.chat_history.memory import MemoryFactory
-from services.llm.model import ModelFactory
+from ai_enterprise_agent.interface.settings import (CHAIN_TYPE,
+                                                    PROCESSING_TYPE, ISettings)
+from ai_enterprise_agent.services.chains.chain import ChainFactory
+from ai_enterprise_agent.services.chains.orchestrator_chain import \
+    OrchestratorChain
+from ai_enterprise_agent.services.chains.sequential_chain import \
+    CustomSequentialChain
+from ai_enterprise_agent.services.chat_history.memory import MemoryFactory
+from ai_enterprise_agent.services.llm.model import ModelFactory
 
 
 class Agent:

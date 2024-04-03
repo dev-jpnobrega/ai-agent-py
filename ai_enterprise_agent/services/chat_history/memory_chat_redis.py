@@ -7,8 +7,8 @@ from langchain_community.chat_message_histories.redis import \
 from langchain_core.messages import AIMessage, BaseMessage, HumanMessage
 from nanoid import generate
 
-from interface.chat_history import IChatHistoryService
-from interface.settings import IChatHistory
+from ai_enterprise_agent.interface.chat_history import IChatHistoryService
+from ai_enterprise_agent.interface.settings import IChatHistory
 
 
 class MemoryChatRedis(BaseChatMessageHistory, IChatHistoryService):

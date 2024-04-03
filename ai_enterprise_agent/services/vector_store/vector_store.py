@@ -1,10 +1,11 @@
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.vectorstores import VectorStore
 
-from interface.settings import VECTOR_STORE_TYPE, ISettings
-from services.vector_store.aws import AwsVectorSearch
-from services.vector_store.azure import AzureVectorSearch
-from services.vector_store.pinecone import PineconeVectorSearch
+from ai_enterprise_agent.interface.settings import VECTOR_STORE_TYPE, ISettings
+from ai_enterprise_agent.services.vector_store.aws import AwsVectorSearch
+from ai_enterprise_agent.services.vector_store.azure import AzureVectorSearch
+from ai_enterprise_agent.services.vector_store.pinecone import \
+    PineconeVectorSearch
 
 
 class VectorStoreFactory:

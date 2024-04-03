@@ -4,8 +4,9 @@ from langchain_core.embeddings import Embeddings
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_openai import AzureOpenAIEmbeddings
 
-from interface.settings import (LLM_TYPE, VECTOR_STORE_TYPE, IEmbedding,
-                                ISettings)
+from ai_enterprise_agent.interface.settings import (LLM_TYPE,
+                                                    VECTOR_STORE_TYPE,
+                                                    IEmbedding, ISettings)
 
 
 class AzureEmbedding:

@@ -8,9 +8,9 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 from langchain_core.runnables.base import RunnableSerializable
 
-from interface.chat_history import IChatHistoryService
-from interface.settings import PROCESSING_TYPE, ISettings
-from utils.fetch_helper import fetch
+from ai_enterprise_agent.interface.chat_history import IChatHistoryService
+from ai_enterprise_agent.interface.settings import PROCESSING_TYPE, ISettings
+from ai_enterprise_agent.utils.fetch_helper import fetch
 
 
 class OpenApiChain(Chain):
@@ -37,7 +37,7 @@ class OpenApiChain(Chain):
     self.open_api = config.get('open_api')
     self.config = config
 
-  def get_fetch(self, question) -> str:
+  def get_fetch(self, question, custom_system_message) -> str:
     open_api = self.open_api
     schema = open_api.get('data')
     prompt = ChatPromptTemplate.from_template(
@@ -46,6 +46,7 @@ class OpenApiChain(Chain):
       You should follow the following rules when generating an answer:\n
       - Only execute the request on the service if the question is not in History, if the question has already been answered, use the same answer and do not make a request on the service.
       - The response must be a JSON object containing an url, content type, method, and data, without triple quotes, json string on start and the end.\n\n
+      {custom_system_message}
       -------------------------------------------\n
       Schema: {schema}\n
       -------------------------------------------\n
@@ -57,10 +58,10 @@ class OpenApiChain(Chain):
       """
     )
     chain = prompt | self.model | StrOutputParser()
-    return chain.invoke({"schema": schema, "question": question, "history": self.memory.get_messages()})
+    return chain.invoke({"schema": schema, "question": question, "history": self.memory.get_messages(), "custom_system_message": custom_system_message})
 
-  def chain(self, question) -> RunnableSerializable[Any, Any]:
-    fetch_sentence = self.get_fetch(question)
+  def chain(self, question, custom_system_message) -> RunnableSerializable[Any, Any]:
+    fetch_sentence = self.get_fetch(question, custom_system_message)
     request = json.loads(fetch_sentence)
     response = fetch(url=request.get('url'), method=request.get('method'), data=request.get('data'), headers={})
     template = """
@@ -75,7 +76,8 @@ class OpenApiChain(Chain):
   async def _call(self, input: Dict[str, Any] = None):
     try:
       question = input['question']
-      chain = self.chain(question)
+      custom_system_message = input.get('custom_system_message', None)
+      chain = self.chain(question, custom_system_message)
       result = chain.invoke(input={'question': question})
       if self.config.get('processing_type') == PROCESSING_TYPE.sequential:
         return { self.output_key: result }

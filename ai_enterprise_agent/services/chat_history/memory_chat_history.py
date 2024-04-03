@@ -5,7 +5,7 @@ from langchain.memory.chat_memory import ChatMessageHistory
 from langchain.schema import BaseChatMessageHistory
 from langchain_core.messages import AIMessage, BaseMessage
 
-from interface.chat_history import IChatHistoryService
+from ai_enterprise_agent.interface.chat_history import IChatHistoryService
 
 
 class MemoryChatHistory(BaseChatMessageHistory, IChatHistoryService):

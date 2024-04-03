@@ -8,8 +8,8 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnableLambda, RunnablePassthrough
 from langchain_core.runnables.base import RunnableSerializable
 
-from interface.chat_history import IChatHistoryService
-from interface.settings import PROCESSING_TYPE, ISettings
+from ai_enterprise_agent.interface.chat_history import IChatHistoryService
+from ai_enterprise_agent.interface.settings import PROCESSING_TYPE, ISettings
 
 
 class SimpleChain(Chain):

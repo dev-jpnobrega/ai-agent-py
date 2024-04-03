@@ -1,8 +1,8 @@
 from langchain_core.language_models.chat_models import BaseChatModel
 
-from interface.settings import LLM_TYPE, IModel
-from services.llm.azure import AzureChatModel
-from services.llm.google import GoogleChatModel
+from ai_enterprise_agent.interface.settings import LLM_TYPE, IModel
+from ai_enterprise_agent.services.llm.azure import AzureChatModel
+from ai_enterprise_agent.services.llm.google import GoogleChatModel
 
 
 class ModelFactory:

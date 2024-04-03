@@ -1,9 +1,11 @@
 from typing import Optional
 
-from interface.chat_history import IChatHistoryService
-from interface.settings import DATABASE_TYPE, IChatHistory
-from services.chat_history.memory_chat_history import MemoryChatHistory
-from services.chat_history.memory_chat_redis import MemoryChatRedis
+from ai_enterprise_agent.interface.chat_history import IChatHistoryService
+from ai_enterprise_agent.interface.settings import DATABASE_TYPE, IChatHistory
+from ai_enterprise_agent.services.chat_history.memory_chat_history import \
+    MemoryChatHistory
+from ai_enterprise_agent.services.chat_history.memory_chat_redis import \
+    MemoryChatRedis
 
 
 class MemoryFactory:

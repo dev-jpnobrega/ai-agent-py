@@ -56,11 +56,13 @@ class IDatabase:
     port = Optional[str]
     database = Optional[str]
     includes_tables = Optional[str]
+    custom_system_message: Optional[str]
 
 class IOpenApi:
     data: str
     token: Optional[str]
     allow_dangerous_requests: bool
+    custom_system_message: Optional[str]
 
 class IEmbedding:
     model_deployment: Optional[str]

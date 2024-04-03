@@ -4,7 +4,7 @@ from typing import Any, Dict, List
 
 from langchain.chains.base import Chain
 
-from interface.settings import ISettings
+from ai_enterprise_agent.interface.settings import ISettings
 
 
 class CustomSequentialChain(Chain):

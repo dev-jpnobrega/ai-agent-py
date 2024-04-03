@@ -4,9 +4,10 @@ from langchain.chains.base import Chain
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.vectorstores import VectorStore
 
-from interface.chat_history import IChatHistoryService
-from interface.settings import PROCESSING_TYPE, ISettings
-from services.vector_store.vector_store import VectorStoreFactory
+from ai_enterprise_agent.interface.chat_history import IChatHistoryService
+from ai_enterprise_agent.interface.settings import PROCESSING_TYPE, ISettings
+from ai_enterprise_agent.services.vector_store.vector_store import \
+    VectorStoreFactory
 
 
 class VectorStoreChain(Chain):

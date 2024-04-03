@@ -5,7 +5,7 @@ from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import PromptTemplate
 
-from interface.settings import CHAIN_TYPE, ISettings
+from ai_enterprise_agent.interface.settings import CHAIN_TYPE, ISettings
 
 
 class OrchestratorChain(Chain):

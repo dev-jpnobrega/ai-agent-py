@@ -10,9 +10,10 @@ from langchain_core.embeddings import Embeddings
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.vectorstores import VectorStore
 
-from interface.settings import VECTOR_STORE_TYPE, ISettings
-from interface.vector_search import ISearchType
-from services.vector_store.embedding import EmbeddingFactory
+from ai_enterprise_agent.interface.settings import VECTOR_STORE_TYPE, ISettings
+from ai_enterprise_agent.interface.vector_search import ISearchType
+from ai_enterprise_agent.services.vector_store.embedding import \
+    EmbeddingFactory
 
 
 class AzureVectorSearch(VectorStore):
