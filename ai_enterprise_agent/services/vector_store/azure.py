@@ -2,7 +2,8 @@ from typing import Any, Iterable, List, Optional, Tuple, Type
 
 from azure.search.documents.indexes.models import (SearchableField,
                                                    SearchField,
-                                                   SearchFieldDataType)
+                                                   SearchFieldDataType,
+                                                   SimpleField)
 from langchain.chains.retrieval_qa.base import RetrievalQA
 from langchain_community.vectorstores.azuresearch import AzureSearch
 from langchain_core.documents import Document
@@ -29,17 +30,10 @@ class AzureVectorSearch(VectorStore):
     embeddings = EmbeddingFactory.build(VECTOR_STORE_TYPE.azure_search, self.config)
 
     fields = [
-      SearchableField(
-          name=config.get('fields_content'),
-          type=SearchFieldDataType.String,
-      ),
-      SearchField(
-          name=config.get('fields_content'),
-          type=SearchFieldDataType.Collection(SearchFieldDataType.Single),
-          searchable=True,
-          vector_search_dimensions=len(embeddings.embed_query("Text")),
-          vector_search_profile_name=config.get('vector_search_profile_name'),
-      ),
+      SimpleField(name='id', type=SearchFieldDataType.String, key=True, filterable=True),
+      SearchableField(name=config.get('fields_content'), type=SearchFieldDataType.String),
+      SearchField(name=config.get('fields_content_vector'), type=SearchFieldDataType.Collection(SearchFieldDataType.Single), searchable=True, vector_search_dimensions=len(embeddings.embed_query("Text")), vector_search_profile_name=config.get('vector_search_profile_name')),
+      SearchableField(name='metadata', type=SearchFieldDataType.String),
     ]
 
     return AzureSearch(

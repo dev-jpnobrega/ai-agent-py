@@ -75,7 +75,7 @@ class MemoryChatRedis(BaseChatMessageHistory, IChatHistoryService):
     pass
 
   def load_memory_variables(self, inputs: Optional[Dict[str, Any]]) -> Dict[str, Any]:
-    return {self.memory_key: self.chat_history.messages}
+    return { self.memory_key: self.chat_history.messages }
 
   def get_messages(self):
     return self.load_memory_variables

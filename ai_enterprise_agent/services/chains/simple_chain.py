@@ -54,8 +54,6 @@ class SimpleChain(Chain):
   async def _call(self, input: Dict[str, Any]):
     chain = self.chain()
     response = chain.invoke(input)
-    self.memory.add_user_message(message=input.get('question'))
-    self.memory.add_ai_message(message=response)
     if self.config.get('processing_type') == PROCESSING_TYPE.sequential:
       return  { self.output_key: response }
     return response

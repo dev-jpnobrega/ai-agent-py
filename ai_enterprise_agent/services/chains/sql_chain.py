@@ -70,7 +70,10 @@ class SqlChain(Chain):
 
   def create_sql(self, _):
     template = """Based on the table schema below, write only a SQL query that would answer the user's question.
+    Your response must only be a valid SQL query, based on the schema provided.
     Remember to put double quotes around database table names. Remove triple quotes and sql word of the sentences.
+    Here are some important observations for generating the query:
+    - Only execute the request on the service if the question is not in History, if the question has already been answered, use the same answer and do not make a query on the database.
     If you don't find out what the table schema is, only response friendly can't be written a valid SQL query.
     Schema: {schema}
     History: {history}
@@ -98,9 +101,9 @@ class SqlChain(Chain):
     if "```sql" in sqlL:
       regex = r"```(.*?)```"
       matches = re.findall(regex, sqlL, re.DOTALL)
-      codeBlocks = [match.replace("sql", "") for match in matches]
-      sqlBlock = codeBlocks[0]
-      return sqlBlock
+      code_blocks = [match.replace("sql", "") for match in matches]
+      sql_block = code_blocks[0]
+      return sql_block
     return None
 
   def chain(self, custom_system_message) -> RunnableSerializable[Any, Any]:
@@ -128,12 +131,9 @@ class SqlChain(Chain):
       print(f"Error: {e}")
 
   async def _call(self, input: Dict[str, Any] = None):
-    question = input.get('question')
     custom_system_message = input.get('custom_system_message', None)
     chain = self.chain(custom_system_message)
     response = chain.invoke(input)
-    self.memory.add_user_message(message=question)
-    self.memory.add_ai_message(message=response)
     if self.config.get('processing_type') == PROCESSING_TYPE.sequential:
       return { self.output_key: response }
     return response

@@ -40,12 +40,11 @@ class OpenApiChain(Chain):
   def get_fetch(self, question, custom_system_message) -> str:
     open_api = self.open_api
     schema = open_api.get('data')
-    prompt = ChatPromptTemplate.from_template(
-      """
-      You are an AI with expertise in OpenAPI and Swagger.\n
-      You should follow the following rules when generating an answer:\n
+    template = """
+      You are an AI with expertise in OpenAPI and Swagger.
+      You should follow the following rules when generating an answer:
       - Only execute the request on the service if the question is not in History, if the question has already been answered, use the same answer and do not make a request on the service.
-      - The response must be a JSON object containing an url, content type, method, and data, without triple quotes, json string on start and the end.\n\n
+      - The response must be a JSON object containing an url, content type, method, and data, without triple quotes, json string on start and the end.
       {custom_system_message}
       -------------------------------------------\n
       Schema: {schema}\n
@@ -55,8 +54,8 @@ class OpenApiChain(Chain):
       Question: {question}\n
       ------------------------------------------\n
       API ANSWER:
-      """
-    )
+    """
+    prompt = ChatPromptTemplate.from_template(template)
     chain = prompt | self.model | StrOutputParser()
     return chain.invoke({"schema": schema, "question": question, "history": self.memory.get_messages(), "custom_system_message": custom_system_message})
 
@@ -66,6 +65,9 @@ class OpenApiChain(Chain):
     response = fetch(url=request.get('url'), method=request.get('method'), data=request.get('data'), headers={})
     template = """
         Based on the context below, answer the question with natural language.
+        You should follow the following rules when generating and answer:
+        - Only attempt to answer if a question was posed.
+        - Always answer the question in the language in which the question was asked.
         Context: {context}
         Question: {question}
       """
