@@ -99,8 +99,10 @@ class Agent:
     self.memory = MemoryFactory.build(config.get('history'), input.get('chat_thread_id'))
     chain = self.build_chains()
     result = await chain._call(input)
-
     if config.get('processing_type') == PROCESSING_TYPE.sequential:
       result = self.refine_result(input, result[0])
+
+    self.memory.add_user_message(message=input.get('question'))
+    self.memory.add_ai_message(message=result)
 
     return result
