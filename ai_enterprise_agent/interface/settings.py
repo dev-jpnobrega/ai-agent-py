@@ -36,6 +36,9 @@ class PROCESSING_TYPE(Enum):
     sequential = 'sequential'
     orchestrated = 'orchestrated'
 
+class DOCUMENT_INTELLIGENCE_TYPE(Enum):
+    azure = 'azure'
+
 class IModel:
     type: LLM_TYPE
     model: str
@@ -105,6 +108,11 @@ class IChatHistory:
 class ISystem:
     system_message: str
 
+class IDocumentIntelligence:
+    type: DOCUMENT_INTELLIGENCE_TYPE
+    endpoint: str
+    api_key: str
+
 class ISettings:
     model: IModel
     chains: List[CHAIN_TYPE]
@@ -113,4 +121,5 @@ class ISettings:
     open_api: Optional[IOpenApi]
     vector_store: Optional[IVectorSearch]
     history: Optional[IChatHistory]
+    document_intelligence: Optional[DOCUMENT_INTELLIGENCE_TYPE]
     system: ISystem
