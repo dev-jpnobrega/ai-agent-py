@@ -4,7 +4,7 @@ with open("README.md", "r") as arq:
     readme = arq.read()
 
 setup(name='ai-enterprise-agent',
-    version='0.0.6',
+    version='0.0.7',
     license='Apache 2.0 License',
     author='Author',
     long_description=readme,
@@ -89,7 +89,6 @@ setup(name='ai-enterprise-agent',
       'PyJWT==2.8.0',
       'pypdf==4.2.0',
       'python-dateutil==2.9.0.post0',
-      'pypiwin32==223',
       'PyYAML==6.0.1',
       'redis==5.0.3',
       'regex==2023.12.25',
