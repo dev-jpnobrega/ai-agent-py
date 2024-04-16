@@ -120,5 +120,5 @@ class ISettings:
     open_api: Optional[IOpenApi]
     vector_store: Optional[IVectorSearch]
     history: Optional[IChatHistory]
-    document_intelligence: Optional[DOCUMENT_INTELLIGENCE_TYPE]
+    document_intelligence: Optional[IDocumentIntelligence]
     system: ISystem
