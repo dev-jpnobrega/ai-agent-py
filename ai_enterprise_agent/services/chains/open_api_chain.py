@@ -45,6 +45,7 @@ class OpenApiChain(Chain):
       You should follow the following rules when generating an answer:
       - Only execute the request on the service if the question is not in History, if the question has already been answered, use the same answer and do not make a request on the service.
       - The response must be a JSON object containing an url, content type, method, and data, without triple quotes, json string on start and the end.
+      - Remember add header parameters on the JSON request object.
       {custom_system_message}
       -------------------------------------------\n
       Schema: {schema}\n
@@ -62,7 +63,7 @@ class OpenApiChain(Chain):
   def chain(self, question, custom_system_message) -> RunnableSerializable[Any, Any]:
     fetch_sentence = self.get_fetch(question, custom_system_message)
     request = json.loads(fetch_sentence)
-    response = fetch(url=request.get('url'), method=request.get('method'), data=request.get('data'), headers={})
+    response = fetch(url=request.get('url'), method=request.get('method'), data=request.get('data'), headers=request.get('headers'))
     template = """
         Based on the context below, answer the question with natural language.
         You should follow the following rules when generating and answer:

@@ -19,7 +19,7 @@ def fetch(url: str, method: str, data: Dict[str, Any] = None, headers: Dict[str,
     """
     try:
         if method.upper() == 'GET':
-            response = requests.get(url, headers=headers)
+            response = requests.get(url, json=data, headers=headers)
         elif method.upper() == 'POST':
             response = requests.post(url, json=data, headers=headers)
         else:

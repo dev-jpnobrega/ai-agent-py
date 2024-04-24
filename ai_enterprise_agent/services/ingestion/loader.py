@@ -1,6 +1,6 @@
 import hashlib
 import tempfile
-from typing import List
+from typing import List, Optional
 
 from langchain_core.documents import Document
 from langchain_core.embeddings import Embeddings
@@ -14,6 +14,9 @@ from ai_enterprise_agent.services.vector_store.vector_store import \
     VectorStoreFactory
 
 
+class CustomDocument(Document):
+  tags: Optional[str]
+
 class Loader:
 
   @staticmethod
@@ -26,15 +29,16 @@ class Loader:
     return {'vector_store': vector_store, 'embeddings': embeddings }
 
   @staticmethod
-  def index_documents(file_name: str, documents: List[Document], chat_uid: str, embeddings: Embeddings) -> List[Document]:
+  def index_documents(file_name: str, documents: List[Document], chat_uid: str, tags: str, embeddings: Embeddings) -> List[CustomDocument]:
     hashed_user_id = Loader.hash_user_id()
-    return [Document(
+    return [CustomDocument(
       id=str(generate()),
-      chatThreadId=chat_uid,
+      chat_thread_id=chat_uid,
       user=hashed_user_id,
-      page_content=doc.page_content,
+      tags=tags,
+      page_content=f"Header\nFilename:{file_name}\n{doc.page_content}",
       metadata={"file": file_name},
-      embedding=embeddings.embed_query(text=doc.page_content)
+      embedding=embeddings.embed_query(text=doc.page_content),
     ) for doc in documents]
 
   @staticmethod

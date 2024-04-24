@@ -31,8 +31,8 @@ class AzureVectorSearch(VectorStore):
 
     fields = [
       SimpleField(name='id', type=SearchFieldDataType.String, key=True, filterable=True),
-      SearchableField(name=config.get('fields_content'), type=SearchFieldDataType.String),
-      SearchField(name=config.get('fields_content_vector'), type=SearchFieldDataType.Collection(SearchFieldDataType.Single), searchable=True, vector_search_dimensions=len(embeddings.embed_query("Text")), vector_search_profile_name=config.get('vector_search_profile_name')),
+      SearchableField(name=config.get('fields_content', 'content'), type=SearchFieldDataType.String),
+      SearchField(name=config.get('fields_content_vector', 'content_vector'), type=SearchFieldDataType.Collection(SearchFieldDataType.Single), searchable=True, vector_search_dimensions=len(embeddings.embed_query("Text")), vector_search_profile_name=config.get('vector_search_profile_name')),
       SearchableField(name='metadata', type=SearchFieldDataType.String),
     ]
 
@@ -44,11 +44,12 @@ class AzureVectorSearch(VectorStore):
       fields=fields
     )
 
-  def similarity_search(self, query: str, k: int = 4, search_type: ISearchType = ISearchType.similarity) -> List[Document]:
+  def similarity_search(self, query: str, k: int = 4, search_type: ISearchType = ISearchType.similarity, filters:str = None) -> List[Document]:
     return self.vector_store.similarity_search(
       query=query,
       k=k,
-      search_type=search_type
+      search_type=search_type,
+      filters=filters
     )
 
   def similarity_search_with_relevance_scores(self, query: str,  score_threshold: float, k: Optional[int]) -> List[Tuple[Document, float]]:

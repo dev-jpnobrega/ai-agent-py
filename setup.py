@@ -4,7 +4,7 @@ with open("README.md", "r") as arq:
     readme = arq.read()
 
 setup(name='ai-enterprise-agent',
-    version='0.0.7',
+    version='0.0.8',
     license='Apache 2.0 License',
     author='Author',
     long_description=readme,
@@ -12,9 +12,9 @@ setup(name='ai-enterprise-agent',
     author_email='autor@autor.com.br',
     keywords='ai ai-agent agent assistant enterprise',
     description='AI Agent simplifies the implementation and use of generative AI with LangChain.',
-    packages=['ai_enterprise_agent', 'ai_enterprise_agent.interface', 'ai_enterprise_agent.services','ai_enterprise_agent.services.chains', 'ai_enterprise_agent.services.chat_history', 'ai_enterprise_agent.services.llm', 'ai_enterprise_agent.services.vector_store', 'ai_enterprise_agent.utils'],
+    packages=['ai_enterprise_agent', 'ai_enterprise_agent.interface', 'ai_enterprise_agent.services','ai_enterprise_agent.services.chains', 'ai_enterprise_agent.services.chat_history', 'ai_enterprise_agent.services.llm', 'ai_enterprise_agent.services.ingestion', 'ai_enterprise_agent.services.vector_store', 'ai_enterprise_agent.utils'],
     python_requires='>=3.9',
-    package_dir={'': '.', 'ai_enterprise_agent': './ai_enterprise_agent', 'ai_enterprise_agent.interface': './ai_enterprise_agent/interface', 'ai_enterprise_agent.services': './ai_enterprise_agent/services', 'ai_enterprise_agent.services.chains': './ai_enterprise_agent/services/chains', 'ai_enterprise_agent.services.chat_history': './ai_enterprise_agent/services/chat_history', 'ai_enterprise_agent.services.llm': './ai_enterprise_agent/services/llm', 'ai_enterprise_agent.services.vector_store': './ai_enterprise_agent/services/vector_store', 'ai_enterprise_agent.utils': './ai_enterprise_agent/utils'},
+    package_dir={'': '.', 'ai_enterprise_agent': './ai_enterprise_agent', 'ai_enterprise_agent.interface': './ai_enterprise_agent/interface', 'ai_enterprise_agent.services': './ai_enterprise_agent/services', 'ai_enterprise_agent.services.chains': './ai_enterprise_agent/services/chains', 'ai_enterprise_agent.services.chat_history': './ai_enterprise_agent/services/chat_history', 'ai_enterprise_agent.services.llm': './ai_enterprise_agent/services/llm', 'ai_enterprise_agent.services.vector_store': './ai_enterprise_agent/services/vector_store', 'ai_enterprise_agent.services.ingestion': './ai_enterprise_agent/services/ingestion','ai_enterprise_agent.utils': './ai_enterprise_agent/utils'},
     install_requires=[
       'aiohttp==3.9.3',
       'aiosignal==1.3.1',

@@ -17,12 +17,12 @@ class TxtLoader():
     self.vector_store: VectorStore = resource.get('vector_store')
     self.embeddings: Embeddings = resource.get('embeddings')
 
-  async def load_file(self, file: str, file_name: str, chat_uid='global') -> List[str]:
+  async def load_file(self, file: str, file_name: str, chat_uid:str='global', tags:str = None) -> List[str]:
     try:
       with open(file, "r") as f:
         file_content = f.read().encode('utf-8')
       documents = self.split_file(file_content)
-      indexed_documents = Loader.index_documents(file_name, documents, chat_uid, embeddings=self.embeddings)
+      indexed_documents = Loader.index_documents(file_name, documents, chat_uid, tags, embeddings=self.embeddings)
       documents = self.vector_store.add_documents(documents=indexed_documents)
       return documents
     except Exception as e:

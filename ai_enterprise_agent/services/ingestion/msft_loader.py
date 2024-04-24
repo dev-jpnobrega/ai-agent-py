@@ -18,10 +18,10 @@ class MicrosoftLoader():
     self.embeddings: Embeddings = resource.get('embeddings')
     self.config = config.get('document_intelligence')
 
-  async def load_file(self, file: str, file_name: str, chat_uid='global') -> List[str]:
+  async def load_file(self, file: str, file_name: str, chat_uid='global', tags:str = None) -> List[str]:
     try:
       documents = self.split_file(file)
-      indexed_documents = Loader.index_documents(file_name, documents, chat_uid, embeddings=self.embeddings)
+      indexed_documents = Loader.index_documents(file_name, documents, chat_uid, tags, embeddings=self.embeddings)
       documents = self.vector_store.add_documents(documents=indexed_documents)
       return documents
     except Exception as e:
