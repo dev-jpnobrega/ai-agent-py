@@ -1,7 +1,10 @@
 from typing import Any, Dict
 
 from langchain.chains.base import Chain
+from langchain.prompts import PromptTemplate
 from langchain_core.language_models.chat_models import BaseChatModel
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.runnables import RunnablePassthrough
 from langchain_core.vectorstores import VectorStore
 
 from ai_enterprise_agent.interface.chat_history import IChatHistoryService
@@ -34,15 +37,29 @@ class VectorStoreChain(Chain):
     self.config = config
     self.vector_store = VectorStoreFactory.build(config=config, model=self.model)
 
-  def build_relevant_docs(self, question: str, k: int = 10):
-    return self.vector_store.similarity_search(query=question, k=k)
+  def build_relevant_docs(self, query: str, k: int = 10):
+    config = self.config.get('vector_store')
+    return self.vector_store.similarity_search(query=query, k=k, filters=config.get('custom_filters', None))
 
-  def chain(self):
-    pass
+  def chain(self, query: str):
+    context = self.build_relevant_docs(query)
+    template = """Use the following the context to answer the question at the end.
+    If you don't know the answer, just say that you don't know, don't try to make up an answer.
+    {context}
+    Question: {question}
+    Answer:"""
+    prompt = PromptTemplate.from_template(template)
+    return (
+      RunnablePassthrough.assign(context=lambda _: context)
+      | prompt
+      | self.model
+      | StrOutputParser()
+    )
 
   async def _call(self, input: Dict[str, Any]):
     question = input.get('question')
-    response = self.vector_store._call(question, False)
+    chain = self.chain(question)
+    response = chain.invoke(input={"question": question})
     if self.config.get('processing_type') == PROCESSING_TYPE.sequential:
-      return { self.output_key: response.get('result') }
-    return response.get('result')
+      return { self.output_key: response }
+    return response

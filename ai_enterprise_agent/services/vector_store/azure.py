@@ -4,7 +4,6 @@ from azure.search.documents.indexes.models import (SearchableField,
                                                    SearchField,
                                                    SearchFieldDataType,
                                                    SimpleField)
-from langchain.chains.retrieval_qa.base import RetrievalQA
 from langchain_community.vectorstores.azuresearch import AzureSearch
 from langchain_core.documents import Document
 from langchain_core.embeddings import Embeddings
@@ -16,6 +15,12 @@ from ai_enterprise_agent.interface.vector_search import ISearchType
 from ai_enterprise_agent.services.vector_store.embedding import \
     EmbeddingFactory
 
+
+class CustomDocument(Document):
+  id: str
+  chat_thread_id: str
+  user: str
+  tags: str
 
 class AzureVectorSearch(VectorStore):
 
@@ -33,6 +38,7 @@ class AzureVectorSearch(VectorStore):
       SimpleField(name='id', type=SearchFieldDataType.String, key=True, filterable=True),
       SearchableField(name=config.get('fields_content', 'content'), type=SearchFieldDataType.String),
       SearchField(name=config.get('fields_content_vector', 'content_vector'), type=SearchFieldDataType.Collection(SearchFieldDataType.Single), searchable=True, vector_search_dimensions=len(embeddings.embed_query("Text")), vector_search_profile_name=config.get('vector_search_profile_name')),
+      SearchableField(name='tags', type=SearchFieldDataType.String, searchable=True, filterable=True, sortable=True),
       SearchableField(name='metadata', type=SearchFieldDataType.String),
     ]
 
@@ -52,23 +58,19 @@ class AzureVectorSearch(VectorStore):
       filters=filters
     )
 
-  def similarity_search_with_relevance_scores(self, query: str,  score_threshold: float, k: Optional[int]) -> List[Tuple[Document, float]]:
+  def similarity_search_with_relevance_scores(self, query: str,  score_threshold: float, k: Optional[int], **kwargs) -> List[Tuple[Document, float]]:
     return self.vector_store.similarity_search_with_relevance_scores(
       query=query,
       k=k,
       score_threshold=score_threshold,
+      **kwargs
     )
 
   def search(self, query: str, search_type: str = ISearchType.similarity, **kwargs: Any) -> List[Document]:
     return self.vector_store.search(query, search_type, **kwargs)
 
-  def _call(self, query, return_source_documents: bool = True):
-    retriever = self.vector_store.as_retriever()
-    qa = RetrievalQA.from_chain_type(self.model, chain_type="stuff", retriever=retriever, return_source_documents=return_source_documents)
-    return qa.invoke({"query": query})
-
-  def add_documents(self, documents: List[Document]):
-    self.vector_store.add_documents(documents=documents)
+  def add_documents(self, documents: List[CustomDocument]):
+    return self.vector_store.add_documents(documents=documents)
 
   def add_texts(
         self,

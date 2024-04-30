@@ -1,6 +1,5 @@
 from typing import Any, Iterable, List, Optional, Tuple, Type
 
-from langchain.chains.retrieval_qa.base import RetrievalQA
 from langchain_community.vectorstores.opensearch_vector_search import \
     OpenSearchVectorSearch
 from langchain_core.documents import Document
@@ -46,11 +45,12 @@ class AwsVectorSearch(VectorStore):
         connection_class=RequestsHttpConnection
     )
 
-  def similarity_search(self, query: str, k: int = 4, search_type: ISearchType = ISearchType.similarity) -> List[Document]:
+  def similarity_search(self, query: str, k: int = 4, search_type: ISearchType = ISearchType.similarity, filters:str = None) -> List[Document]:
     return self.vector_store.similarity_search(
       query=query,
       k=k,
-      search_type=search_type
+      search_type=search_type,
+      pre_filter=filters
     )
 
   def similarity_search_with_relevance_scores(self, query: str,  score_threshold: float, k: Optional[int]) -> List[Tuple[Document, float]]:
@@ -62,11 +62,6 @@ class AwsVectorSearch(VectorStore):
 
   def search(self, query: str, search_type: str, **kwargs: Any) -> List[Document]:
     return self.vector_store.search(query, search_type, **kwargs)
-
-  def _call(self, query, return_source_documents: bool = True):
-    retriever = self.vector_store.as_retriever()
-    qa = RetrievalQA.from_chain_type(self.model, chain_type="stuff", retriever=retriever, return_source_documents=return_source_documents)
-    return qa.invoke({"query": query})
 
   def add_documents(self, documents: List[Document]):
     self.vector_store.add_documents(documents=documents)

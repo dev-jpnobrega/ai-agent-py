@@ -15,7 +15,10 @@ from ai_enterprise_agent.services.vector_store.vector_store import \
 
 
 class CustomDocument(Document):
-  tags: Optional[str]
+  id: str
+  chat_thread_id: str
+  user: str
+  tags: str
 
 class Loader:
 
@@ -37,8 +40,8 @@ class Loader:
       user=hashed_user_id,
       tags=tags,
       page_content=f"Header\nFilename:{file_name}\n{doc.page_content}",
-      metadata={"file": file_name},
-      embedding=embeddings.embed_query(text=doc.page_content),
+      metadata={"file": file_name, "tags": tags},
+      embedding=[],
     ) for doc in documents]
 
   @staticmethod
